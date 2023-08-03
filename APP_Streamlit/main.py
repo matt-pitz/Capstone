@@ -1,8 +1,8 @@
 # main.py
 
-import user_data as user
-import database_functions as dbf
-import recommender as rec
+from get_user_data import get_user_data
+from database_utils import update_database, database_for_recommender
+from recommender import generate_run_ratings, return_run_schedule
 
 def main():
     # Collect user inputs (note only works for new users for now)

@@ -37,17 +37,15 @@ def load_data():
     # create user ID
     raw_df["user_id"] = raw_df["athlete"].astype(str) + "." + raw_df["current_month"].astype(str)
 
-#    handle the "Duration" format in "HH:MM:SS"
-    try:
-        raw_df['Duration'] = pd.to_timedelta(raw_df['Duration'])
-    except:
-        # Handle any invalid "Duration" values by setting them to NaT (Not-a-Time)
-        raw_df['Duration'] = pd.to_timedelta(raw_df['Duration'], errors='coerce')
+#     # Convert the "Duration" column to string in 'HH:MM:SS' format
+    raw_df['Duration'] = raw_df['Duration'].astype(str)
 
     # remove any missings from the data
     raw_df = raw_df.dropna(subset=["prev_month_weekly_km"])
 
     return raw_df
+
+    
 
 
 def update_database(new_user, gender, age_bucket, month, weekly_target, number_of_days, user_id, updated_user_df):
@@ -97,7 +95,7 @@ def update_database(new_user, gender, age_bucket, month, weekly_target, number_o
         user_df = user_df[user_df['user_id'] == str(user_id)]
 
         # Find the most recent date in the time series
-        most_recent_date = user_df['Date'].max()
+        most_recent_date = pd.to_datetime(user_df['Date']).max()
 
         # Calculate the date 30 days prior to the most recent date
         thirty_days_prior = most_recent_date - pd.Timedelta(days=30)

@@ -6,6 +6,9 @@ from run_plan_page import get_run_plan
 from database_utils import update_database, database_for_recommender
 from recommender import generate_run_ratings, return_run_schedule
 
+from datetime import datetime, timedelta
+
+
 # Set the Streamlit page configuration
 st.set_page_config(page_title="Runner Training Plan App", page_icon="🏃‍♂️")
 
@@ -28,6 +31,8 @@ if "reset" not in st.session_state:
 # Global variables
 new_user, age_group, gender, distance_last_week, pace_last_week, num_days_run_last_week, days_since_last_run, new_user_df, user_id = None, None, None, None, None, None, None, None, None
 km_this_week, days_to_run, medium_intensity_runs, high_intensity_runs, sunday_long_run = None, None, None, None, None
+selected_date = None
+
 user_db_data = pd.DataFrame()
 
 # Format the timedelta as HH:MM:SS
@@ -42,6 +47,9 @@ def format_pace_string(pace_timedelta):
 def main():
     global new_user, age_group, gender, distance_last_week, pace_last_week, num_days_run_last_week, days_since_last_run, new_user_df, user_id
     global km_this_week, days_to_run, medium_intensity_runs, high_intensity_runs, sunday_long_run, user_db_data
+
+    month = datetime.now().month
+
 
     # Call the corresponding function based on the current page
     if st.session_state.current_page == "Welcome":
@@ -75,9 +83,10 @@ def handle_user_input():
         st.session_state.reset = False
         st.session_state.current_page = "Welcome"
         st.experimental_rerun()
-
-    new_user, age_group, gender, distance_last_week, pace_last_week, num_days_run_last_week, days_since_last_run, new_user_df, user_id = get_user_data()
     
+    new_user, age_group, gender, distance_last_week, pace_last_week, num_days_run_last_week, days_since_last_run, new_user_df, user_id = get_user_data()
+
+
     if new_user_df is not None:
         # Display user data
         st.write("User Data")
@@ -89,7 +98,7 @@ def handle_user_input():
         st.write(f"Average Pace Last Week: {format_pace_string(pace_last_week)}")
         st.write(f"Number of Days Ran Last Week: {num_days_run_last_week}")
         st.write(f"Days Since Last Run: {days_since_last_run}")
-        
+
         st.write("Run Data:")
         st.write(new_user_df)
 
@@ -114,7 +123,6 @@ def handle_user_input():
                 st.session_state.current_page = "Run Plan"
 
     # Show user data in a table format
-    if new_user is not None:
         st.write("User Data Summary:")
         user_data_summary = pd.DataFrame({
             "Field": ["User ID", "Age Group", "Gender", "Distance Run Last Week (in km)", "Average Pace Last Week", "Number of Days Run in Last Week", "Days Since Last Run"],

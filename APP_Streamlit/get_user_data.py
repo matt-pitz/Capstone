@@ -51,25 +51,7 @@ def get_user_data():
         # Generate a random user ID for new users
         user_id = generate_random_user_id()
 
-        '''
-        age = st.number_input("What is your age?", min_value=18, step=1) 
-        age = int(age)
-        if age >= 18:
-            if 18 <= age <= 34:
-                age_group = "18 - 34"
-            elif 35 <= age <= 54:
-                age_group = "35 - 54"
-            else:
-                age_group = "55 +"
-        
-        gender = st.selectbox("What is your gender?", ('Male', 'Female','Other'))
-        distance_last_week = st.number_input("Distance run last week (in kilometers):", min_value=0.0, step=0.1)
-        pace_last_week = st.time_input("Average pace last week:", value=datetime.strptime('00:00:00', '%H:%M:%S'))
-        num_days_run_last_week = st.slider("Number of days run in last week:", 0, 7)
-        days_since_last_run = st.slider("Days since last run:", 0, 30)
-        '''
-
-        # Additional data collection for new users can be added here
+       
     else:
         # Returning User Info
         st.header("Returning User Information")
@@ -123,23 +105,27 @@ def get_user_data():
 
     st.header("Information on Each Run")
     data = []
+    date_input = None  # Define date_input outside the loop
+
     for i in range(num_days_run_last_week):
         st.subheader(f"Day {i+1}")
-        date = st.date_input("Enter a date you ran:", key=f"date_{i}")
+        date_input = st.date_input("Enter a date you ran:", key=f"date_{i}", value=datetime.strptime('2023-07-01', '%Y-%m-%d'))
+
+        # Convert the date string to a datetime object in 'YYYY-MM-DD' format
+        try:
+            date_string = date_input.strftime('%Y-%m-%d')
+        except ValueError:
+            st.error("Invalid date format. Please use 'YYYY-MM-DD' format.")
+            continue
+
         distance_value = st.number_input("How many kilometers did you run?", min_value=0.0, step=0.1, key=f"distance_{i}")
         pace_value = st.text_input("What was the total run pace?", key=f"pace_{i}", value="00:00")
 
-        try:
-            # Convert the input pace to a timedelta object
-            pace_minutes, pace_seconds = map(int, pace_value.split(':'))
-            pace_timedelta = timedelta(minutes=pace_minutes, seconds=pace_seconds)
-        except ValueError:
-            # Handle any invalid "Duration" values by setting them to None or any default value you prefer
-            pace_timedelta = None  # or timedelta(seconds=0) for default value
+        # Append the input data to the 'data' list
+        data.append({"Date": date_string, "Distance": distance_value, "Pace": pace_value})
 
-        data.append([date, distance_value, pace_timedelta])
 
-    df = pd.DataFrame(data, columns=['Date', 'Distance (in km)', 'Pace'])
+    df = pd.DataFrame(data)
 
     # Validate inputs
     error_msg = ""
